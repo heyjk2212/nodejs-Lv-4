@@ -7,14 +7,16 @@ const PORT = 3000;
 
 app.use(express.json()); // body-parser
 
-app.get("/", (req, res) => {
-  return res.status(200).send("Welcome");
+const router = express.Router();
+
+router.get("/", (req, res) => {
+  return res.json({ message: "Welcome" });
 });
 
-app.use("/api", [CategoriesRouter, MenusRouter]);
+app.use("/api", [router, CategoriesRouter, MenusRouter]);
 
 app.listen(PORT, () => {
-  console.log(PORT, `${PORT} 포트로 서버가 열렸습니다.`);
+  console.log(PORT, `Server running on port ${PORT}`);
 });
 
 export default app;
