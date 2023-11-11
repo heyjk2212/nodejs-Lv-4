@@ -1,0 +1,17 @@
+{
+  "name": "level-4",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:heyjk2212/nodejs-Lv-4.git",
+  "author": "heyjk2212 <jinakim2212@gmail.com>",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.5.2",
+    "express": "^4.18.2",
+    "prisma": "^5.5.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
