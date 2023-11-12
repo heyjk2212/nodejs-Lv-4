@@ -101,9 +101,7 @@ router.post(
         return res.status(400).json({ errorMessage: error.message });
       }
 
-      return res
-        .status(500)
-        .json({ errorMessage: "서버에서 문제가 발생하였습니다." });
+      next(error); // 에러 핸들링 미들웨어
     }
   }
 );
@@ -162,9 +160,7 @@ router.get("/categories/:categoryId/menus", async (req, res, next) => {
       return res.status(400).json({ errorMessage: error.message });
     }
 
-    return res
-      .status(500)
-      .json({ errorMessage: "서버에서 문제가 발생하였습니다." });
+    next(error); // 에러 핸들링 미들웨어
   }
 });
 
@@ -232,9 +228,7 @@ router.get("/categories/:categoryId/menus/:menuId", async (req, res, next) => {
       return res.status(400).json({ errorMessage: error.message });
     }
 
-    return res
-      .status(500)
-      .json({ errorMessage: "서버에서 문제가 발생하였습니다." });
+    next(error); // 에러 핸들링 미들웨어
   }
 });
 
@@ -310,9 +304,7 @@ router.patch(
         return res.status(400).json({ errorMessage: error.message });
       }
 
-      return res
-        .status(500)
-        .json({ errorMessage: "서버에서 문제가 발생하였습니다." });
+      next(error); // 에러 핸들링 미들웨어
     }
   }
 );
@@ -372,9 +364,7 @@ router.delete(
         return res.status(400).json({ errorMessage: error.message });
       }
 
-      return res
-        .status(500)
-        .json({ errorMessage: "서버에서 문제가 발생하였습니다." });
+      next(error); // 에러 핸들링 미들웨어
     }
   }
 );

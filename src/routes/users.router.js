@@ -9,6 +9,7 @@ const router = express.Router();
 // 회원가입 API (소비자/사장님)
 router.post("/sign-up", async (req, res, next) => {
   try {
+    // throw new Error("에러 처리 미들웨어 테스트");
     // const { nickname, password, type } = req.body;
     const validation = await usersSchema.validateAsync(req.body);
     const { nickname, password, type } = validation;
@@ -47,15 +48,14 @@ router.post("/sign-up", async (req, res, next) => {
       return res.status(400).json({ errorMessage: error.message });
     }
 
-    return res
-      .status(500)
-      .json({ errorMessage: "서버에서 문제가 발생하였습니다." });
+    next(error); // 에러 핸들링 미들웨어
   }
 });
 
 // 로그인 API (소비자/사장님)
 router.post("/sign-in", async (req, res, next) => {
   try {
+    // throw new Error("에러 처리 미들웨어 테스트");
     // const { nickname, password } = req.body;
     const validation = await usersSchema.validateAsync(req.body);
     const { nickname, password } = validation;
@@ -104,9 +104,7 @@ router.post("/sign-in", async (req, res, next) => {
       return res.status(400).json({ errorMessage: error.message });
     }
 
-    return res
-      .status(500)
-      .json({ errorMessage: "서버에서 문제가 발생하였습니다." });
+    next(error); // 에러 핸들링 미들웨어
   }
 });
 
