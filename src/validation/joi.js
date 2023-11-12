@@ -45,7 +45,15 @@ const categoryParamsSchema = Joi.object({
 const usersSchema = Joi.object({
   // alphanum() // 알파벳 대소문자 및 숫자로만 구성
   nickname: Joi.string().min(3).max(15).alphanum().required(),
-  password: Joi.string().min(8).max(20).required(),
+  password: Joi.string()
+    .min(8)
+    .max(20)
+    .invalid(Joi.ref("nickname")) // 닉네임과 같은 값이 포함된 경우를 회원가입 실패로 처리
+    .required()
+    .messages({
+      // .messages()를 사용하여, 유효성 검사 실패 시 출력될 에러 메시지를 설정
+      "any.invalid": '"password"는 닉네임과 유사하거나 동일할 수 없습니다.',
+    }),
   type: Joi.string().valid("CUSTOMER", "OWNER"),
 });
 
