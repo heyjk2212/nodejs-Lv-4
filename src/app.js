@@ -3,9 +3,12 @@ import CategoriesRouter from "./routes/categories.router.js";
 import MenusRouter from "./routes/menus.router.js";
 import UsersRouter from "./routes/users.router.js";
 import cookieParser from "cookie-parser";
+import LogMiddleware from "./middlewares/log.middleware.js";
 
 const app = express();
 const PORT = 3000;
+
+app.use(LogMiddleware);
 
 app.use(express.json()); // body-parser
 app.use(cookieParser());
