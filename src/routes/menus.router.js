@@ -1,33 +1,13 @@
 import express from "express";
 import { prisma } from "../utils/prisma/index.js";
-import Joi from "joi";
+import {
+  menuRegistrationSchema,
+  categoryParamsSchema,
+  menuUpdateSchema,
+  paramsSchema,
+} from "../validation/joi.js";
 
 const router = express.Router();
-
-// 메뉴 등록을 위한 스키마
-const menuRegistrationSchema = Joi.object({
-  name: Joi.string().min(1).max(100).required(),
-  description: Joi.string().min(1).max(100).required(),
-  image: Joi.string().min(1).max(100),
-  price: Joi.number().integer(),
-});
-
-// 메뉴 업데이트 스키마
-const menuUpdateSchema = Joi.object({
-  name: Joi.string().min(1).max(100).required(),
-  description: Joi.string().min(1).max(100).required(),
-  price: Joi.number().integer(),
-  order: Joi.number().integer(),
-  // valid 메소드를 사용하여 허용되는 값을 명시적으로 지정할 수 있다.
-  // 이렇게 하면 status 필드의 값은 'FOR_SALE' 또는 'SOLD_OUT' 중 하나여야 한다
-  status: Joi.string().valid("FOR_SALE", "SOLD_OUT").min(1).max(10),
-});
-
-// 카테고리 파라미터 유효성 검사를 위한 스키마
-const paramsSchema = Joi.object({
-  categoryId: Joi.number().integer().required(),
-  menuId: Joi.number().integer().required(),
-});
 
 // 5. 메뉴 등록 API
 router.post("/categories/:categoryId/menus", async (req, res, next) => {

@@ -1,24 +1,12 @@
 import express from "express";
 import { prisma } from "../utils/prisma/index.js";
-import Joi from "joi";
+import {
+  categoryRegistrationSchema,
+  categoryUpdateSchema,
+  categoryParamsSchema,
+} from "../validation/joi.js";
 
 const router = express.Router();
-
-// 카테고리 등록을 위한 스키마
-const categoryRegistrationSchema = Joi.object({
-  name: Joi.string().min(1).max(100).required(),
-});
-
-// 카테고리 정보 변경을 위한 스키마
-const categoryUpdateSchema = Joi.object({
-  name: Joi.string().min(1).max(100).required(),
-  order: Joi.number().integer().required(),
-});
-
-// 카테고리 파라미터 유효성 검사를 위한 스키마
-const categoryParamsSchema = Joi.object({
-  categoryId: Joi.number().integer().required(),
-});
 
 // 1. 카테고리 등록 API
 router.post("/categories", async (req, res, next) => {
