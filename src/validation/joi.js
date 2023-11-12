@@ -41,6 +41,14 @@ const categoryParamsSchema = Joi.object({
   categoryId: Joi.number().integer().required(),
 });
 
+// 회원가입을 위한 스키마
+const usersSchema = Joi.object({
+  // alphanum() // 알파벳 대소문자 및 숫자로만 구성
+  nickname: Joi.string().min(3).max(15).alphanum().required(),
+  password: Joi.string().min(8).max(20).required(),
+  type: Joi.string().valid("CUSTOMER", "OWNER"),
+});
+
 export {
   menuRegistrationSchema,
   menuUpdateSchema,
@@ -48,4 +56,5 @@ export {
   categoryRegistrationSchema,
   categoryUpdateSchema,
   categoryParamsSchema,
+  usersSchema,
 };

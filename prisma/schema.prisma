@@ -33,3 +33,12 @@ model Menus {
   
   @@map("Menus")
 }
+
+model Users {
+  userId Int @id @default(autoincrement()) @map("userId")
+  nickname String @map("nickname")
+  password String @map("password")
+  type String? @default("CUSTOMER") @map("type")
+
+  @@map("Users")
+}
