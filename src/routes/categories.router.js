@@ -1,12 +1,34 @@
 import express from "express";
 import { prisma } from "../utils/prisma/index.js";
+import Joi from "joi";
 
 const router = express.Router();
+
+// 카테고리 등록을 위한 스키마
+const categoryRegistrationSchema = Joi.object({
+  name: Joi.string().min(1).max(100).required(),
+});
+
+// 카테고리 정보 변경을 위한 스키마
+const categoryUpdateSchema = Joi.object({
+  name: Joi.string().min(1).max(100).required(),
+  order: Joi.number().integer().required(),
+});
+
+// 카테고리 파라미터 유효성 검사를 위한 스키마
+const categoryParamsSchema = Joi.object({
+  categoryId: Joi.number().integer().required(),
+});
 
 // 1. 카테고리 등록 API
 router.post("/categories", async (req, res, next) => {
   try {
-    const { name } = req.body;
+    // const { name } = req.body;
+    // 여기서 검증에 실패하면 에러가 발생
+    const validation = await categoryRegistrationSchema.validateAsync(req.body);
+
+    // 위에서 검증에 성공하면, validation에서 반환된 값을 쓴다.
+    const { name } = validation;
 
     //400 - body를 입력받지 못한 경우
     if (!name) {
@@ -41,6 +63,10 @@ router.post("/categories", async (req, res, next) => {
   } catch (error) {
     console.error(error);
 
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ errorMessage: error.message });
+    }
+
     return res
       .status(500)
       .json({ errorMessage: "서버에서 에러가 발생하였습니다." });
@@ -71,12 +97,18 @@ router.get("/categories", async (req, res, next) => {
   }
 });
 
-// 카테고리 정보 변경 API
+// 3. 카테고리 정보 변경 API
 router.patch("/categories/:categoryId", async (req, res, next) => {
   try {
-    const { categoryId } = req.params;
+    // const { categoryId } = req.params;
+    // const { name, order } = req.body;
+    const validationBody = await categoryUpdateSchema.validateAsync(req.body);
+    const validationParams = await categoryParamsSchema.validateAsync(
+      req.params
+    );
 
-    const { name, order } = req.body;
+    const { categoryId } = validationParams;
+    const { name, order } = validationBody;
 
     if (!categoryId) {
       return res
@@ -153,16 +185,23 @@ router.patch("/categories/:categoryId", async (req, res, next) => {
   } catch (error) {
     console.error(error);
 
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ errorMessage: error.message });
+    }
+
     return res
       .status(500)
       .json({ errorMessage: "서버에서 에러가 발생하였습니다." });
   }
 });
 
-// 카테고리 삭제 API
+// 4. 카테고리 삭제 API
 router.delete("/categories/:categoryId", async (req, res, next) => {
   try {
-    const { categoryId } = req.params;
+    // const { categoryId } = req.params;
+
+    const validation2 = await categoryParamsSchema.validateAsync(req.params);
+    const { categoryId } = validation2;
 
     if (!categoryId) {
       return res
@@ -193,6 +232,10 @@ router.delete("/categories/:categoryId", async (req, res, next) => {
     return res.status(200).json({ message: "카테고리 정보를 삭제하였습니다." });
   } catch (error) {
     console.error(error);
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ errorMessage: error.message });
+    }
 
     return res
       .status(500)
