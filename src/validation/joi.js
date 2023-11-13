@@ -4,15 +4,15 @@ import Joi from "joi";
 const menuRegistrationSchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
   description: Joi.string().min(1).max(100).required(),
-  image: Joi.string().min(1).max(100),
-  price: Joi.number().integer(),
+  image: Joi.string().min(1).max(2083), // 일반적으로 URL의 최대 길이는 2,083 문자이다
+  price: Joi.number().integer().min(0).required(), // 0보다 크거나 같아야 한다.
 });
 
 // 메뉴 업데이트 스키마
 const menuUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(100).required(),
   description: Joi.string().min(1).max(100).required(),
-  price: Joi.number().integer(),
+  price: Joi.number().integer().min(0).required(), // 0보다 크거나 같아야 한다.
   order: Joi.number().integer(),
   // valid 메소드를 사용하여 허용되는 값을 명시적으로 지정할 수 있다.
   // 이렇게 하면 status 필드의 값은 'FOR_SALE' 또는 'SOLD_OUT' 중 하나여야 한다
