@@ -21,79 +21,75 @@ router.post(
       // console.log(user); // user객체는 userId, nickname, password, type을 가지고 있다
       // 로그인 토큰을 검사하여, 사장님(OWNER) 토큰일 경우에만 카테고리 등록 가능
 
-      if (type === "OWNER") {
-        // const { categoryId } = req.params;
-        // const { name, description, image, price } = req.body;
-        const validationBody = await menuRegistrationSchema.validateAsync(
-          req.body
-        );
-        const validationParams = await categoryParamsSchema.validateAsync(
-          req.params
-        );
-
-        const { categoryId } = validationParams;
-        const { name, description, image, price } = validationBody;
-
-        if (!categoryId) {
-          return res
-            .status(400)
-            .json({ errorMessage: "데이터 형식이 올바르지 않습니다" });
-        }
-
-        if (!name || !description || !image || !price) {
-          return res
-            .status(400)
-            .json({ errorMessage: "데이터 형식이 올바르지 않습니다" });
-        }
-
-        if (price < 0) {
-          return res
-            .status(400)
-            .json({ errorMessage: "메뉴 가격은 0보다 작을 수 없습니다." });
-        }
-
-        // maxOder값 찾기
-        const maxOrder = await prisma.menus.findFirst({
-          select: {
-            order: true,
-          },
-          orderBy: {
-            order: "desc", // 내림차순으로 정렬 - 최근에 추가한 order값이 맨 위로
-          },
-        });
-
-        // 새롭게 메뉴가 추가되면 매 새로운 order값 할당
-        const newOrder = maxOrder ? maxOrder.order + 1 : 1;
-
-        // 등록하려는 카테고리가 실제로 존재하는지 확인
-        const category = await prisma.categories.findFirst({
-          where: {
-            categoryId: +categoryId,
-          },
-        });
-
-        if (!category) {
-          return res
-            .status(404)
-            .json({ errorMessage: "카테고리가 존재하지 않습니다." });
-        }
-
-        // 전달받은 데이터 db에 저장한다
-        await prisma.menus.create({
-          data: {
-            CategoryId: +categoryId,
-            name,
-            description,
-            image,
-            price,
-            order: newOrder,
-          },
-        });
-
-        return res.status(201).json({ message: "메뉴를 등록하였습니다." });
-      } else {
-        return res.status(400).json({ errorMessage: "OWNER가 아닙니다." });
+      if (type !== "OWNER") {
+        return res
+          .status(400)
+          .json({ errorMessage: "죄송합니다. OWNER가 아닙니다." });
       }
+
+      // const { categoryId } = req.params;
+      // const { name, description, image, price } = req.body;
+      const validationBody = await menuRegistrationSchema.validateAsync(
+        req.body
+      );
+      const validationParams = await categoryParamsSchema.validateAsync(
+        req.params
+      );
+
+      const { categoryId } = validationParams;
+      const { name, description, image, price } = validationBody;
+
+      if (!categoryId) {
+        return res
+          .status(400)
+          .json({ errorMessage: "데이터 형식이 올바르지 않습니다" });
+      }
+
+      if (!name || !description || !image || !price) {
+        return res
+          .status(400)
+          .json({ errorMessage: "데이터 형식이 올바르지 않습니다" });
+      }
+
+      // maxOder값 찾기
+      const maxOrder = await prisma.menus.findFirst({
+        select: {
+          order: true,
+        },
+        orderBy: {
+          order: "desc", // 내림차순으로 정렬 - 최근에 추가한 order값이 맨 위로
+        },
+      });
+
+      // 새롭게 메뉴가 추가되면 매 새로운 order값 할당
+      const newOrder = maxOrder ? maxOrder.order + 1 : 1;
+
+      // 등록하려는 카테고리가 실제로 존재하는지 확인
+      const category = await prisma.categories.findFirst({
+        where: {
+          categoryId: +categoryId,
+        },
+      });
+
+      if (!category) {
+        return res
+          .status(404)
+          .json({ errorMessage: "카테고리가 존재하지 않습니다." });
+      }
+
+      // 전달받은 데이터 db에 저장한다
+      await prisma.menus.create({
+        data: {
+          CategoryId: +categoryId,
+          name,
+          description,
+          image,
+          price,
+          order: newOrder,
+        },
+      });
+
+      return res.status(201).json({ message: "메뉴를 등록하였습니다." });
     } catch (error) {
       console.error(error);
 
@@ -243,60 +239,56 @@ router.patch(
       // console.log(user); // user객체는 userId, nickname, password, type을 가지고 있다
       // 로그인 토큰을 검사하여, 사장님(OWNER) 토큰일 경우에만 카테고리 등록 가능
 
-      if (type === "OWNER") {
-        // const { categoryId, menuId } = req.params;
-        const validationParams = await paramsSchema.validateAsync(req.params);
-        const { categoryId, menuId } = validationParams;
-
-        // const { name, description, price, order, status } = req.body;
-        const validateBodyData = await menuUpdateSchema.validateAsync(req.body);
-        const { name, description, price, order, status } = validateBodyData;
-
-        if (!categoryId && !menuId) {
-          return res
-            .status(400)
-            .json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
-        }
-
-        if (price < 0) {
-          return res
-            .status(400)
-            .json({ errorMessage: "메뉴 가격은 0보다 작을 수 없습니다" });
-        }
-
-        // 실제 메뉴가 존재하는지 확인
-        const menu = await prisma.menus.findFirst({
-          where: {
-            CategoryId: +categoryId,
-            menuId: +menuId,
-          },
-        });
-
-        if (!menu) {
-          return res
-            .status(404)
-            .json({ errorMessage: "메뉴가 존재하지 않습니다." });
-        }
-
-        // 메뉴 수정하기
-        await prisma.menus.update({
-          where: {
-            CategoryId: +categoryId,
-            menuId: +menuId,
-          },
-          data: {
-            name,
-            description,
-            price,
-            order,
-            status,
-          },
-        });
-
-        return res.status(201).json({ message: "메뉴를 수정하였습니다." });
-      } else {
-        return res.status(400).json({ errorMessage: "OWNER가 아닙니다." });
+      if (type !== "OWNER") {
+        return res
+          .status(400)
+          .json({ errorMessage: "죄송합니다. OWNER가 아닙니다." });
       }
+
+      // const { categoryId, menuId } = req.params;
+      const validationParams = await paramsSchema.validateAsync(req.params);
+      const { categoryId, menuId } = validationParams;
+
+      // const { name, description, price, order, status } = req.body;
+      const validateBodyData = await menuUpdateSchema.validateAsync(req.body);
+      const { name, description, price, order, status } = validateBodyData;
+
+      if (!categoryId && !menuId) {
+        return res
+          .status(400)
+          .json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
+      }
+
+      // 실제 메뉴가 존재하는지 확인
+      const menu = await prisma.menus.findFirst({
+        where: {
+          CategoryId: +categoryId,
+          menuId: +menuId,
+        },
+      });
+
+      if (!menu) {
+        return res
+          .status(404)
+          .json({ errorMessage: "메뉴가 존재하지 않습니다." });
+      }
+
+      // 메뉴 수정하기
+      await prisma.menus.update({
+        where: {
+          CategoryId: +categoryId,
+          menuId: +menuId,
+        },
+        data: {
+          name,
+          description,
+          price,
+          order,
+          status,
+        },
+      });
+
+      return res.status(201).json({ message: "메뉴를 수정하였습니다." });
     } catch (error) {
       console.error(error);
 
@@ -320,43 +312,45 @@ router.delete(
       // console.log(user); // user객체는 userId, nickname, password, type을 가지고 있다
       // 로그인 토큰을 검사하여, 사장님(OWNER) 토큰일 경우에만 카테고리 등록 가능
 
-      if (type === "OWNER") {
-        // const { categoryId, menuId } = req.params;
-        const validationParams = await paramsSchema.validateAsync(req.params);
-        const { categoryId, menuId } = validationParams;
-
-        if (!categoryId && !menuId) {
-          return res
-            .status(400)
-            .json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
-        }
-
-        // 실제 메뉴가 존재하는지 확인
-        const menu = await prisma.menus.findFirst({
-          where: {
-            CategoryId: +categoryId,
-            menuId: +menuId,
-          },
-        });
-
-        if (!menu) {
-          return res
-            .status(404)
-            .json({ errorMessage: "메뉴가 존재하지 않습니다." });
-        }
-
-        // db에서 삭제
-        await prisma.menus.delete({
-          where: {
-            CategoryId: +categoryId,
-            menuId: +menuId,
-          },
-        });
-
-        return res.status(200).json({ message: "메뉴를 삭제하였습니다" });
-      } else {
-        return res.status(400).json({ errorMessage: "OWNER가 아닙니다." });
+      if (type !== "OWNER") {
+        return res
+          .status(400)
+          .json({ errorMessage: "죄송합니다. OWNER가 아닙니다." });
       }
+
+      // const { categoryId, menuId } = req.params;
+      const validationParams = await paramsSchema.validateAsync(req.params);
+      const { categoryId, menuId } = validationParams;
+
+      if (!categoryId && !menuId) {
+        return res
+          .status(400)
+          .json({ errorMessage: "데이터 형식이 올바르지 않습니다." });
+      }
+
+      // 실제 메뉴가 존재하는지 확인
+      const menu = await prisma.menus.findFirst({
+        where: {
+          CategoryId: +categoryId,
+          menuId: +menuId,
+        },
+      });
+
+      if (!menu) {
+        return res
+          .status(404)
+          .json({ errorMessage: "메뉴가 존재하지 않습니다." });
+      }
+
+      // db에서 삭제
+      await prisma.menus.delete({
+        where: {
+          CategoryId: +categoryId,
+          menuId: +menuId,
+        },
+      });
+
+      return res.status(200).json({ message: "메뉴를 삭제하였습니다" });
     } catch (error) {
       console.error(error);
 
